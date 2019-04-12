@@ -7,9 +7,14 @@
 // In applying this license CERN does not waive the privileges and immunities
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
+#include <iostream>
 #include "TTree.h"
+#include "TString.h"
+#include "AliAnalysisManager.h"
 #include "AliAnalysisTaskEmcalRun3ConverterDigits.h"
+#include "AliInputEventHandler.h"
 #include "AliVCaloCells.h"
+#include "AliVEvent.h"
 
 ClassImp(o2::emc::AliAnalysisTaskEmcalRun3ConverterDigits)
 
@@ -18,13 +23,31 @@ using namespace o2::emc;
 AliAnalysisTaskEmcalRun3ConverterDigits::AliAnalysisTaskEmcalRun3ConverterDigits(const char *name) :
     AliAnalysisTaskSE(name),
     fO2simtree(nullptr),
-    fDigitContainer(nullptr)
+    fDigitContainer(nullptr),
+    fTrigger("INT7"),
+    fTriggerBits(-1)
 {
     DefineOutput(1, TTree::Class());
 }
 
 void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
     fDigitContainer = new std::vector<o2::EMCAL::Digit>;
+
+    if(fTrigger.find("INT7") != std::string::npos) {
+        fTriggerBits = AliVEvent::kINT7;
+    } else if(fTrigger.find("EG1") != std::string::npos || 
+              fTrigger.find("EG2") != std::string::npos ||
+              fTrigger.find("DG1") != std::string::npos ||
+              fTrigger.find("DG2") != std::string::npos) {
+        fTriggerBits = AliVEvent::kEMCEGA;
+    } else if(fTrigger.find("EJ1") != std::string::npos || 
+              fTrigger.find("EJ2") != std::string::npos ||
+              fTrigger.find("DJ1") != std::string::npos ||
+              fTrigger.find("DJ2") != std::string::npos) {
+        fTriggerBits = AliVEvent::kEMCEJE;
+    }
+
+    OpenFile(1);
     fO2simtree = new TTree("o2sim", "o2sim");
     fO2simtree->SetBranchAddress("EMCALDigit", &fDigitContainer);
 
@@ -33,9 +56,27 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
 
 void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
     fDigitContainer->clear();
+    if(!fInputHandler->IsEventSelected() & fTriggerBits) return;
+    if(!fInputEvent->GetFiredTriggerClasses().Contains(fTrigger.data())) return;
     auto cells = fInputEvent->GetEMCALCells();
     for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) fDigitContainer->emplace_back(cells->GetCellPosition(icell), cells->GetCellAmplitude(icell), cells->GetCellTime(icell));
 
     fO2simtree->Fill();
     PostData(1, fO2simtree);
+}
+
+AliAnalysisTaskEmcalRun3ConverterDigits *AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3ConverterDigits(const char *name, const char *outputfile) {
+    AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
+    if(!mgr) {
+        std::cerr << "No analysis manager provided ..." << std::endl;
+        return nullptr;
+    }
+
+    auto task = new AliAnalysisTaskEmcalRun3ConverterDigits(name);
+    mgr->AddTask(task);
+
+    mgr->ConnectInput(task, 0, mgr->GetCommonInputContainer());
+    mgr->ConnectOutput(task, 1, mgr->CreateContainer("o2sim", TTree::Class(), AliAnalysisManager::kOutputContainer, outputfile));
+
+    return task;
 }

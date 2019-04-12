@@ -12,6 +12,7 @@
 
 #include "AliAnalysisTaskSE.h"
 #include "EMCALBase/Digit.h"
+#include <string>
 #include <vector>
 
 class TTree;
@@ -28,12 +29,19 @@ public:
     AliAnalysisTaskEmcalRun3ConverterDigits &operator=(const AliAnalysisTaskEmcalRun3ConverterDigits &) = delete;
     virtual ~AliAnalysisTaskEmcalRun3ConverterDigits() = default;
 
+    void SetTrigger(const char *trigger) { fTrigger = trigger; }
+
+    static AliAnalysisTaskEmcalRun3ConverterDigits *AddTaskEmcalRun3ConverterDigits(const char *name, const char *outputfile = "o2sim.root");
+
+protected:
     virtual void UserCreateOutputObjects();
     virtual void UserExec(Option_t *);
 
 private:
     TTree*                                  fO2simtree;
     std::vector<o2::EMCAL::Digit>*          fDigitContainer;
+    std::string                             fTrigger;
+    UInt_t                                  fTriggerBits;
 
     ClassDef(AliAnalysisTaskEmcalRun3ConverterDigits, 1);
 };
