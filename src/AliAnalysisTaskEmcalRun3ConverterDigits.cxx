@@ -13,6 +13,7 @@
 #include "AliAnalysisManager.h"
 #include "AliAnalysisTaskEmcalRun3ConverterDigits.h"
 #include "AliInputEventHandler.h"
+#include "AliLog.h"
 #include "AliVCaloCells.h"
 #include "AliVEvent.h"
 
@@ -49,17 +50,19 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
 
     OpenFile(1);
     fO2simtree = new TTree("o2sim", "o2sim");
-    fO2simtree->SetBranchAddress("EMCALDigit", &fDigitContainer);
+    fO2simtree->Branch("EMCALDigit", &fDigitContainer);
 
     PostData(1, fO2simtree);
 }
 
 void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
     fDigitContainer->clear();
-    if(!fInputHandler->IsEventSelected() & fTriggerBits) return;
+    if(!(fInputHandler->IsEventSelected() & fTriggerBits)) return;
     if(!fInputEvent->GetFiredTriggerClasses().Contains(fTrigger.data())) return;
+    AliDebugStream(1) << "Selecting trigger " << fTrigger << ": " << fInputEvent->GetFiredTriggerClasses() << std::endl;
     auto cells = fInputEvent->GetEMCALCells();
-    for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) fDigitContainer->emplace_back(cells->GetCellPosition(icell), cells->GetCellAmplitude(icell), cells->GetCellTime(icell));
+    for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) fDigitContainer->emplace_back(cells->GetCellNumber(icell), cells->GetCellAmplitude(icell), cells->GetTime(icell));
+    AliDebugStream(1) << "Cell container has " << fDigitContainer->size() << " cell" << std::endl;
 
     fO2simtree->Fill();
     PostData(1, fO2simtree);
