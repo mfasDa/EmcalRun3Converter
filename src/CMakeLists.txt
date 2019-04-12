@@ -48,3 +48,9 @@ install(TARGETS ${MODULE}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib)
 install(FILES ${HDRS} DESTINATION include)
+
+add_executable(runEmcalRun3DigitsConverter runEmcalRun3DigitsConverter.cxx )
+target_link_libraries(runEmcalRun3DigitsConverter ${MODULE} ${ROOT_DEPENDENCIES} ${ALICEO2_LIBRARIES} ${ALIROOT_LIBRARIES} Boost::program_options)
+install(TARGETS runEmcalRun3DigitsConverter
+    RUNTIME DESTINATION bin
+)

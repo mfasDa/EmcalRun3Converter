@@ -15,7 +15,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 find_package(
     Boost 1.58
     COMPONENTS
-      serialization
+			serialization
+			program_options
   )
 find_package(ROOT 6.04.02 REQUIRED)
 find_package(AliRoot REQUIRED)
@@ -78,3 +79,5 @@ if(CMAKE_CXX_COMPILER_ID  STREQUAL Clang)
 endif()
 
 add_subdirectory(src)
+
+install (DIRECTORY macros DESTINATION share)
