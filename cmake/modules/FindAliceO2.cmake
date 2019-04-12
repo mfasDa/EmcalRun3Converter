@@ -30,7 +30,7 @@ get_filename_component(AliceO2_INCLUDE_DIR ${AliceO2_INCLUDE_DIR} DIRECTORY)
 set(AliceO2_INCLUDE_DIRS ${AliceO2_INCLUDE_DIR})
 
 # find libraries
-find_library(AliceO2_LIBRARY_EMCALBASE NAMES EMCALBase HINTS ${O2_ROOT}/lib ENV LD_LIBRARY_PATH)
+find_library(AliceO2_LIBRARY_EMCALBASE NAMES O2EMCALBase HINTS ${O2_ROOT}/lib ENV LD_LIBRARY_PATH)
 
 set(AliceO2_LIBRARIES ${AliceO2_LIBRARY_EMCALBASE})
 # TODO SEARCH *ALL* LIBRARIES --> AliceO2 should ideally provide the list !!!
