@@ -39,7 +39,7 @@ protected:
 
 private:
     TTree*                                  fO2simtree;
-    std::vector<o2::EMCAL::Digit>*          fDigitContainer;
+    std::vector<o2::emcal::Digit>*          fDigitContainer;
     std::string                             fTrigger;
     UInt_t                                  fTriggerBits;
 

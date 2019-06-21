@@ -32,7 +32,7 @@ AliAnalysisTaskEmcalRun3ConverterDigits::AliAnalysisTaskEmcalRun3ConverterDigits
 }
 
 void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
-    fDigitContainer = new std::vector<o2::EMCAL::Digit>;
+    fDigitContainer = new std::vector<o2::emcal::Digit>;
 
     if(fTrigger.find("INT7") != std::string::npos) {
         fTriggerBits = AliVEvent::kINT7;
