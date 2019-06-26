@@ -19,7 +19,7 @@ class TTree;
 
 namespace o2 {
 
-namespace emc {
+namespace emcal {
 
 class AliAnalysisTaskEmcalRun3ConverterDigits : public AliAnalysisTaskSE {
 public:

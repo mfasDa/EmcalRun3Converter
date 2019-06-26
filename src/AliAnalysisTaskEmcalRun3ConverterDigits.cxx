@@ -17,9 +17,9 @@
 #include "AliVCaloCells.h"
 #include "AliVEvent.h"
 
-ClassImp(o2::emc::AliAnalysisTaskEmcalRun3ConverterDigits)
+ClassImp(o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits)
 
-using namespace o2::emc;
+using namespace o2::emcal;
 
 AliAnalysisTaskEmcalRun3ConverterDigits::AliAnalysisTaskEmcalRun3ConverterDigits(const char *name) :
     AliAnalysisTaskSE(name),

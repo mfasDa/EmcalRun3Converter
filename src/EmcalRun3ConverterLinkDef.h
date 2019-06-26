@@ -14,7 +14,7 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace o2+;
-#pragma link C++ namespace emc+;
-#pragma link C++ class o2::emc::AliAnalysisTaskEmcalRun3ConverterDigits+;
+#pragma link C++ namespace emcal+;
+#pragma link C++ class o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits+;
 
 #endif
