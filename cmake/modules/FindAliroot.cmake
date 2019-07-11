@@ -12,13 +12,13 @@ include(FindPackageHandleStandardArgs)
 
 find_program(ALIROOT_EXE NAMES aliroot PATHS ${ALICE_ROOT}/bin NO_DEFAULT_PATH)
 
-find_path(AliRoot_INCLUDE_DIR AliAnalysisTaskSE.h
-        HINTS ${ALICE_ROOT}/include ENV LD_LIBRARY_PATH)
-message(STATUS "AliRoot_INCLUDE_DIR: ${AliRoot_INCLUDE_DIR}")
-
 find_path(AliRoot_LIBRARY_DIR libANALYSISalice.so
         HINTS ${ALICE_ROOT}/lib ENV LD_LIBRARY_PATH)
 message(STATUS "AliRoot_LIBRARY_DIR: ${AliRoot_LIBRARY_DIR}")
+
+get_filename_component(ALIROOT_DIR ${AliRoot_LIBRARY_DIR} DIRECTORY)
+set(AliRoot_INCLUDE_DIR ${ALIROOT_DIR}/include)
+message(STATUS "AliRoot_INCLUDE_DIR: ${AliRoot_INCLUDE_DIR}")
 
 set(AliRoot_INCLUDE_DIRS ${AliRoot_INCLUDE_DIR})
 set(AliRoot_LIBRARY_DIRS ${AliRoot_LIBRARY_DIR})

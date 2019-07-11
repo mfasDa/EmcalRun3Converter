@@ -11,7 +11,7 @@
 #include "TTree.h"
 #include "TString.h"
 #include "AliAnalysisManager.h"
-#include "AliAnalysisTaskEmcalRun3ConverterDigits.h"
+#include "EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h"
 #include "AliInputEventHandler.h"
 #include "AliLog.h"
 #include "AliVCaloCells.h"

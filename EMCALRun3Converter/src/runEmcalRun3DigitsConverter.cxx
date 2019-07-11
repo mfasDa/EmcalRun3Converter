@@ -17,7 +17,7 @@
 #include "AliAnalysisManager.h"
 #include "AliAODInputHandler.h"
 #include "AliESDInputHandler.h"
-#include "AliAnalysisTaskEmcalRun3ConverterDigits.h"
+#include "EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h"
 
 int main(int argc, const char **argv) {
     std::string inputfile, outputfile, trigger;
@@ -73,7 +73,7 @@ int main(int argc, const char **argv) {
     AliAnalysisManager *mgr = new AliAnalysisManager;
     mgr->SetInputEventHandler(inputhandler);
 
-    auto task = o2::emc::AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3ConverterDigits("digitsConverter", outputfile.data());
+    auto task = o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3ConverterDigits("digitsConverter", outputfile.data());
     task->SetTrigger(trigger.data());
 
     std::unique_ptr<TFile> reader(TFile::Open(inputfile.data(), "READ"));

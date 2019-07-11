@@ -8,19 +8,49 @@
 # granted to it by virtue of its status as an Intergovernmental Organization
 # or submit itself to any jurisdiction.
 project(EmcalRun3Converter CXX)
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 
+set(CMAKE_INSTALL_LIBDIR lib)
+
+# Set the default build type to "RelWithDebInfo"
+if(NOT CMAKE_BUILD_TYPE)
+  set(
+    CMAKE_BUILD_TYPE
+    "RelWithDebInfo"
+    CACHE
+      STRING
+      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel Coverage."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+option(BUILD_SHARED_LIBS "Build shared libs" ON)
+
+# Build targets with install rpath on Mac to dramatically speed up installation
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib"
+          isSystemDir)
+if("${isSystemDir}" STREQUAL "-1")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+  endif()
+endif()
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+endif()
+unset(isSystemDir)
+
 find_package(
-    Boost 1.58
+    Boost 1.68
     COMPONENTS
 			serialization
 			program_options
   )
-find_package(ROOT 6.04.02 REQUIRED)
+
+find_package(ROOT 6.16.00 REQUIRED)
 find_package(AliRoot REQUIRED)
-find_package(AliceO2 REQUIRED)
+find_package(O2 MODULE REQUIRED)
 
 include(CheckCXXCompilerFlag)
 
@@ -78,6 +108,6 @@ if(CMAKE_CXX_COMPILER_ID  STREQUAL Clang)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
 
-add_subdirectory(src)
+add_subdirectory(EMCALRun3Converter)
 
 install (DIRECTORY macros DESTINATION share)
