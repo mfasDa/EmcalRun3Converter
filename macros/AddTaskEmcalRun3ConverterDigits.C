@@ -7,6 +7,6 @@
 // In applying this license CERN does not waive the privileges and immunities
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
-o2::emc::AliAnalysisTaskEmcalRun3ConverterDigits *AddTaskEmcalRun3ConverterDigits(const char *name) {
+o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits *AddTaskEmcalRun3ConverterDigits(const char *name) {
     return o2::emc::AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3DigitsConverter(name);
 }
