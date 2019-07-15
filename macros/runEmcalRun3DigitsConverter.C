@@ -12,9 +12,12 @@ R__ADD_INCLUDE_PATH($ALICE_ROOT)
 
 TChain *createInputChain(const char *filelist, const char *treename) {
     TChain *result = new TChain(treename, "");
-    std::ifstream filestream;
+    std::ifstream filestream(filelist);
     std::string filename;
-    while(std::getline(filestream, filename)) result->AddFile(filename.data());
+    while(std::getline(filestream, filename)) {
+	    std::cout << "Adding file " << filename << std::endl;
+	    result->AddFile(filename.data());
+    }
     return result;
 }
 
@@ -26,7 +29,8 @@ void runEmcalRun3DigitsConverter(const char *filelist, const char *trigger, bool
     auto convertertask = o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3ConverterDigits("convertertask");
     convertertask->SetTrigger(trigger);
 
-    auto inputtree = createInputChain(filelist);
+    std::string treename = aod ? "aodTree" : "esdTree";
+    auto inputtree = createInputChain(filelist, treename.data());
     if(mgr->InitAnalysis()) {
         mgr->PrintStatus();
         mgr->StartAnalysis("local", inputtree);   
