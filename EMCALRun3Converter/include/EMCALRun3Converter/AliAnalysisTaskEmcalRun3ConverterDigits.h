@@ -11,7 +11,7 @@
 #define ALIANALYSISTASKEMCALRUN3CONVERTERDIGITS_H
 
 #include "AliAnalysisTaskSE.h"
-#include "EMCALBase/Digit.h"
+#include "DataFormatsEMCAL/Digit.h"
 #include <string>
 #include <vector>
 

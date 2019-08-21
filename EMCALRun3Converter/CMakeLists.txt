@@ -16,7 +16,7 @@ target_include_directories(
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(EMCALRun3Converter PUBLIC O2::EMCALBase AliRoot::AliRoot Boost::serialization)
+target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL AliRoot::AliRoot Boost::serialization)
 
 add_root_dictionary(EMCALRun3Converter
                     HEADERS include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
