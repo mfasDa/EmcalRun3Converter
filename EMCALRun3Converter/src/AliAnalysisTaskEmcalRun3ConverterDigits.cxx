@@ -12,6 +12,7 @@
 #include "TString.h"
 #include "AliAnalysisManager.h"
 #include "EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h"
+#include "DataFormatsEMCAL/Constants.h"
 #include "AliInputEventHandler.h"
 #include "AliLog.h"
 #include "AliVCaloCells.h"
@@ -61,7 +62,11 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
     if(!fInputEvent->GetFiredTriggerClasses().Contains(fTrigger.data())) return;
     AliDebugStream(1) << "Selecting trigger " << fTrigger << ": " << fInputEvent->GetFiredTriggerClasses() << std::endl;
     auto cells = fInputEvent->GetEMCALCells();
-    for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) fDigitContainer->emplace_back(cells->GetCellNumber(icell), cells->GetAmplitude(icell), cells->GetTime(icell));
+    for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) {
+        fDigitContainer->emplace_back(cells->GetCellNumber(icell), cells->GetAmplitude(icell), cells->GetTime(icell));
+        ChannelType_t celltype = cells->GetHighGain(icell) ? ChannelType_t::HIGH_GAIN : ChannelType_t::LOW_GAIN;
+        fDigitContainer->back().setType(celltype);
+    }
     AliDebugStream(1) << "Cell container has " << fDigitContainer->size() << " cell" << std::endl;
 
     fO2simtree->Fill();
