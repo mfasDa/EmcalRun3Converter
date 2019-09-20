@@ -57,13 +57,14 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
 }
 
 void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
+    const double SECONDSTONANOSECONDS = 1e9;
     fDigitContainer->clear();
     if(!(fInputHandler->IsEventSelected() & fTriggerBits)) return;
     if(!fInputEvent->GetFiredTriggerClasses().Contains(fTrigger.data())) return;
     AliDebugStream(1) << "Selecting trigger " << fTrigger << ": " << fInputEvent->GetFiredTriggerClasses() << std::endl;
     auto cells = fInputEvent->GetEMCALCells();
     for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) {
-        fDigitContainer->emplace_back(cells->GetCellNumber(icell), cells->GetAmplitude(icell), cells->GetTime(icell));
+        fDigitContainer->emplace_back(cells->GetCellNumber(icell), cells->GetAmplitude(icell), cells->GetTime(icell) * SECONDSTONANOSECONDS);
         ChannelType_t celltype = cells->GetHighGain(icell) ? ChannelType_t::HIGH_GAIN : ChannelType_t::LOW_GAIN;
         fDigitContainer->back().setType(celltype);
     }

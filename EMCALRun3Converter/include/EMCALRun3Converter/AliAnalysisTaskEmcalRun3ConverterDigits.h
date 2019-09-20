@@ -31,7 +31,7 @@ public:
 
     void SetTrigger(const char *trigger) { fTrigger = trigger; }
 
-    static AliAnalysisTaskEmcalRun3ConverterDigits *AddTaskEmcalRun3ConverterDigits(const char *name, const char *outputfile = "o2sim.root");
+    static AliAnalysisTaskEmcalRun3ConverterDigits *AddTaskEmcalRun3ConverterDigits(const char *name, const char *outputfile = "emcal.digits.root");
 
 protected:
     virtual void UserCreateOutputObjects();
