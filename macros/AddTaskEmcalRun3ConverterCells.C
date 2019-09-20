@@ -7,15 +7,6 @@
 // In applying this license CERN does not waive the privileges and immunities
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
-#ifdef __CINT__
-
-#pragma link off all globals;
-#pragma link off all classes;
-#pragma link off all functions;
-
-#pragma link C++ namespace o2+;
-#pragma link C++ namespace o2::emcal+;
-#pragma link C++ class o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits+;
-#pragma link C++ class o2::emcal::AliAnalysisTaskEmcalRun3ConverterCells+;
-
-#endif
+o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits *AddTaskEmcalRun3ConverterCells(const char *name) {
+    return o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3ConverterCells(name);
+}

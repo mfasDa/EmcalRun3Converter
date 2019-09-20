@@ -8,7 +8,8 @@
 # granted to it by virtue of its status as an Intergovernmental Organization
 # or submit itself to any jurisdiction.
 
-add_library(EMCALRun3Converter src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx)
+add_library(EMCALRun3Converter src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
+                               src/AliAnalysisTaskEmcalRun3ConverterCells.cxx)
 
 target_include_directories(
   EMCALRun3Converter
@@ -20,6 +21,7 @@ target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL AliRoot::Al
 
 add_root_dictionary(EMCALRun3Converter
                     HEADERS include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
+                            include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterCells.h
                     LINKDEF include/EMCALRun3Converter/LinkDef.h
                     BASENAME EMCALRun3Converter)
 
@@ -34,5 +36,11 @@ install(TARGETS EMCALRun3Converter
 add_executable(runEmcalRun3DigitsConverter src/runEmcalRun3DigitsConverter.cxx )
 target_link_libraries(runEmcalRun3DigitsConverter EMCALRun3Converter O2::EMCALBase AliRoot::AliRoot Boost::program_options)
 install(TARGETS runEmcalRun3DigitsConverter
+    RUNTIME DESTINATION bin
+)
+
+add_executable(runEmcalRun3CellsConverter src/runEmcalRun3CellsConverter.cxx )
+target_link_libraries(runEmcalRun3CellsConverter EMCALRun3Converter O2::EMCALBase AliRoot::AliRoot Boost::program_options)
+install(TARGETS runEmcalRun3CellsConverter
     RUNTIME DESTINATION bin
 )

@@ -8,5 +8,5 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits *AddTaskEmcalRun3ConverterDigits(const char *name) {
-    return o2::emc::AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3DigitsConverter(name);
+    return o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits::AddTaskEmcalRun3ConverterDigits(name);
 }
