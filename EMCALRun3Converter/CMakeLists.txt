@@ -9,7 +9,8 @@
 # or submit itself to any jurisdiction.
 
 add_library(EMCALRun3Converter src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
-                               src/AliAnalysisTaskEmcalRun3ConverterCells.cxx)
+                               src/AliAnalysisTaskEmcalRun3ConverterCells.cxx
+                               src/AliEmcalRawConverter.cxx)
 
 target_include_directories(
   EMCALRun3Converter
@@ -17,11 +18,12 @@ target_include_directories(
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL AliRoot::AliRoot Boost::serialization)
+target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::EMCALSimulation O2::Headers AliRoot::AliRoot Boost::serialization)
 
 add_root_dictionary(EMCALRun3Converter
                     HEADERS include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
                             include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterCells.h
+                            include/EMCALRun3Converter/AliEmcalRawConverter.h
                     LINKDEF include/EMCALRun3Converter/LinkDef.h
                     BASENAME EMCALRun3Converter)
 
@@ -42,5 +44,11 @@ install(TARGETS runEmcalRun3DigitsConverter
 add_executable(runEmcalRun3CellsConverter src/runEmcalRun3CellsConverter.cxx )
 target_link_libraries(runEmcalRun3CellsConverter EMCALRun3Converter O2::EMCALBase AliRoot::AliRoot Boost::program_options)
 install(TARGETS runEmcalRun3CellsConverter
+    RUNTIME DESTINATION bin
+)
+
+add_executable(runEmcalRun3RawConverter src/runEmcalRun3RawConverter.cxx)
+target_link_libraries(runEmcalRun3RawConverter EMCALRun3Converter O2::EMCALBase O2::EMCALSimulation O2::Headers AliRoot::AliRoot Boost::program_options)
+install(TARGETS runEmcalRun3RawConverter
     RUNTIME DESTINATION bin
 )
