@@ -10,10 +10,14 @@
 #ifndef ALIEMCALRAWCONVERTER_H
 #define ALIEMCALRAWCONVERTER_H
 
+#include <gsl/span>
 #include <string>
 #include "Rtypes.h"
 #include "RStringView.h"
 #include "EMCALSimulation/DMAOutputStream.h"
+
+class AliRawReaderRoot;
+class AliRawDataHeaderV3;
 
 namespace o2
 {
@@ -32,7 +36,12 @@ public:
     void convert();
 
 private:
+    bool nextDDL(AliRawReaderRoot &reader);
     std::string mInputFile;
+    gsl::span<char> mCurrentDataBuffer;
+    const AliRawDataHeaderV3 *mCurrentHeader;
+    Int_t mCurrentEquipment;
+    
     DMAOutputStream mOutputStream;
 
     ClassDefNV(AliEmcalRawConverter, 1)

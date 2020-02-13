@@ -21,8 +21,29 @@ using namespace o2::emcal;
 
 AliEmcalRawConverter::AliEmcalRawConverter(const std::string_view filerawin, const std::string_view filerawout):
     mInputFile(filerawin),
-    mOutputStream(filerawout.data())
-    {}
+    mOutputStream(filerawout.data()),
+    mCurrentDataBuffer(),
+    mCurrentHeader(nullptr),
+    mCurrentEquipment(-1)
+{
+
+}
+
+bool AliEmcalRawConverter::nextDDL(AliRawReaderRoot &reader) {
+    unsigned char *dataptr(nullptr);
+    do {
+        if (!reader.ReadNextData(dataptr)) {
+            mCurrentDataBuffer = gsl::span<char>();
+            mCurrentHeader = nullptr;
+            mCurrentEquipment = -1;
+            return false;
+        }
+    } while (reader.GetDataSize() == 0);
+    mCurrentDataBuffer = gsl::span<char>(reinterpret_cast<char *>(dataptr), reader.GetDataSize());
+    mCurrentHeader = reader.GetDataHeaderV3();
+    mCurrentEquipment =  reader.GetEquipmentId();
+    return true;
+}
 
 void AliEmcalRawConverter::convert()
 {
@@ -38,25 +59,14 @@ void AliEmcalRawConverter::convert()
     {
         std::cout << "Reading next event" << std::endl;
         inputStream.Reset();
-
-        bool error = false;
-        do {
-            if (!inputStream.ReadNextData(dataptr)) {
-                error = true;
-                break;
-            }
-        } while (inputStream.GetDataSize() == 0);
-        if(error){
-            std::cerr << "Error decoding event" << std::endl;
-            continue;
+        while(nextDDL(inputStream)) {
+            std::cout << "Converting data for Equipment " << mCurrentEquipment << " (" << MIN_DDL_EMCAL << "," << MAX_DDL_EMCAL << ")\n";
+            header::RAWDataHeaderV4 headernew;
+            headernew.triggerBC = mCurrentHeader->GetEventID1();
+            headernew.heartbeatBC = mCurrentHeader->GetEventID2();
+            headernew.feeId = mCurrentEquipment - MIN_DDL_EMCAL;
+            headernew.triggerType = mCurrentHeader->GetTriggerClasses();
+            mOutputStream.writeData(headernew, mCurrentDataBuffer);
         }
-        std::cout << "Converting data for Equipment " << inputStream.GetEquipmentId() << " (" << MIN_DDL_EMCAL << "," << MAX_DDL_EMCAL << ")\n";
-        auto headerold = inputStream.GetDataHeaderV3();
-        header::RAWDataHeaderV4 headernew;
-        headernew.triggerBC = headerold->GetEventID1();
-        headernew.heartbeatBC = headerold->GetEventID2();
-        headernew.feeId = inputStream.GetEquipmentId() - MIN_DDL_EMCAL;
-        headernew.triggerType = headerold->GetTriggerClasses();
-        mOutputStream.writeData(headernew, gsl::span<char>(reinterpret_cast<char *>(dataptr), inputStream.GetDataSize()));
     }
 }
