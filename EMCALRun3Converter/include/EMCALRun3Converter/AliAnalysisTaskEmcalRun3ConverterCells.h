@@ -12,9 +12,11 @@
 
 #include "AliAnalysisTaskSE.h"
 #include "DataFormatsEMCAL/Cell.h"
+#include "DataFormatsEMCAL/TriggerRecord.h"
 #include <string>
 #include <vector>
 
+class TRandom;
 class TTree;
 
 namespace o2 {
@@ -27,7 +29,7 @@ public:
     AliAnalysisTaskEmcalRun3ConverterCells(const char *name);
     AliAnalysisTaskEmcalRun3ConverterCells(const AliAnalysisTaskEmcalRun3ConverterCells &) = delete;
     AliAnalysisTaskEmcalRun3ConverterCells &operator=(const AliAnalysisTaskEmcalRun3ConverterCells &) = delete;
-    virtual ~AliAnalysisTaskEmcalRun3ConverterCells() = default;
+    virtual ~AliAnalysisTaskEmcalRun3ConverterCells();
 
     void SetTrigger(const char *trigger) { fTrigger = trigger; }
 
@@ -36,14 +38,21 @@ public:
 protected:
     virtual void UserCreateOutputObjects();
     virtual void UserExec(Option_t *);
+    virtual void FinishTaskOutput();
+
+    void WriteCells();
 
 private:
     TTree*                                  fO2simtree;
+    TRandom*                                fTimeframeLengthCreator;
     std::vector<o2::emcal::Cell>*           fCellContainer;
+    std::vector<o2::emcal::TriggerRecord>*  fCellTriggerRecords;
     std::string                             fTrigger;
     UInt_t                                  fTriggerBits;
+    UInt_t                                  fCurrentEvent;
+    UInt_t                                  fEventsTimeframe;
 
-    ClassDef(AliAnalysisTaskEmcalRun3ConverterCells, 1);
+    ClassDef(AliAnalysisTaskEmcalRun3ConverterCells, 2);
 };
 
 }
