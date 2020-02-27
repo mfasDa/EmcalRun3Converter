@@ -67,7 +67,7 @@ void AliAnalysisTaskEmcalRun3ConverterCells::UserCreateOutputObjects(){
     OpenFile(1);
     fO2simtree = new TTree("o2sim", "o2sim");
     fO2simtree->Branch("EMCALCell", &fCellContainer);
-    fO2simtree->Branch("EMCALCellsTRGR", &fCellTriggerRecords);
+    fO2simtree->Branch("EMCALCellTRGR", &fCellTriggerRecords);
     PostData(1, fO2simtree);
 }
 
@@ -90,6 +90,7 @@ void AliAnalysisTaskEmcalRun3ConverterCells::UserExec(Option_t *){
     bcdata.bc = fInputEvent->GetHeader()->GetTimeStamp();
     bcdata.orbit = fInputEvent->GetHeader()->GetOrbitNumber();
     fCellTriggerRecords->emplace_back(bcdata, currentcell, ncellsevent);
+    fCurrentEvent++;
 
     if(fCurrentEvent >= fEventsTimeframe) WriteCells();
 

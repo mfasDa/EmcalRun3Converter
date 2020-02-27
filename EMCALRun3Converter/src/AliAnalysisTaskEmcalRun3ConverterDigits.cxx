@@ -68,7 +68,7 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
     OpenFile(1);
     fO2simtree = new TTree("o2sim", "o2sim");
     fO2simtree->Branch("EMCALDigit", &fDigitContainer);
-    fO2simtree->Branch("EMCALCellsTRGR", &fDigitTriggerRecords);
+    fO2simtree->Branch("EMCALiDigitTRGR", &fDigitTriggerRecords);
 
     PostData(1, fO2simtree);
 }
@@ -92,9 +92,9 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
     bcdata.bc = fInputEvent->GetHeader()->GetTimeStamp();
     bcdata.orbit = fInputEvent->GetHeader()->GetOrbitNumber();
     fDigitTriggerRecords->emplace_back(bcdata, currentcell, ndigitsevent);
+    fCurrentEvent++;
 
     if(fCurrentEvent >= fEventsTimeframe) WriteDigits();
-
 
     fO2simtree->Fill();
     PostData(1, fO2simtree);
