@@ -68,7 +68,7 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
     OpenFile(1);
     fO2simtree = new TTree("o2sim", "o2sim");
     fO2simtree->Branch("EMCALDigit", &fDigitContainer);
-    fO2simtree->Branch("EMCALiDigitTRGR", &fDigitTriggerRecords);
+    fO2simtree->Branch("EMCALDigitTRGR", &fDigitTriggerRecords);
 
     PostData(1, fO2simtree);
 }
