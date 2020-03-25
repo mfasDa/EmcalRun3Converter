@@ -15,13 +15,16 @@
 #include "AliRawReaderRoot.h"
 
 #include "Headers/RAWDataHeader.h"
+#include "DetectorsRaw/HBFUtils.h"
+#include "CommonUtils/ConfigurableParam.h"
 #include "EMCALRun3Converter/AliEmcalRawConverter.h"
 
 using namespace o2::emcal;
 
 AliEmcalRawConverter::AliEmcalRawConverter(const std::string_view filerawin, const std::string_view filerawout):
     mInputFile(filerawin),
-    mOutputStream(filerawout.data()),
+    mPagehandler(filerawout.data()),
+    mCurrentIR(),
     mCurrentDataBuffer(),
     mCurrentHeader(nullptr),
     mCurrentEquipment(-1)
@@ -42,6 +45,9 @@ bool AliEmcalRawConverter::nextDDL(AliRawReaderRoot &reader) {
     mCurrentDataBuffer = gsl::span<char>(reinterpret_cast<char *>(dataptr), reader.GetDataSize());
     mCurrentHeader = reader.GetDataHeaderV3();
     mCurrentEquipment =  reader.GetEquipmentId();
+    mCurrentIR.clear();
+    mCurrentIR.orbit = reader.GetOrbitID();
+    mCurrentIR.bc = reader.GetBCID();
     return true;
 }
 
@@ -53,20 +59,33 @@ void AliEmcalRawConverter::convert()
     AliRawReaderRoot inputStream(mInputFile.data());
     inputStream.Select("EMCAL",0 , AliDAQ::GetFirstSTUDDL() -1); 
     inputStream.RewindEvents();
-    mOutputStream.open();
     unsigned char *dataptr(nullptr);
+    bool initIR(true);
     while (inputStream.NextEvent())
     {
         std::cout << "Reading next event" << std::endl;
         inputStream.Reset();
+        bool initTrigger(true);
         while(nextDDL(inputStream)) {
             std::cout << "Converting data for Equipment " << mCurrentEquipment << " (" << MIN_DDL_EMCAL << "," << MAX_DDL_EMCAL << ")\n";
+            if(initIR) {
+                // initialize First IR in HBF utils
+                conf::ConfigurableParam::setValue("HBFUtils", "bcFirst", mCurrentIR.bc);
+                conf::ConfigurableParam::setValue("HBFUtils", "orbitFirst", mCurrentIR.orbit);
+                initIR = false;
+            }
+            if(initTrigger) {
+                mPagehandler.initTrigger(mCurrentIR);
+                initTrigger = false;
+            }
             header::RAWDataHeaderV4 headernew;
             headernew.triggerBC = mCurrentHeader->GetEventID1();
             headernew.heartbeatBC = mCurrentHeader->GetEventID2();
             headernew.feeId = mCurrentEquipment - MIN_DDL_EMCAL;
             headernew.triggerType = mCurrentHeader->GetTriggerClasses();
-            mOutputStream.writeData(headernew, mCurrentDataBuffer);
+            std::vector<char> pagebuffer(mCurrentDataBuffer.size());
+            memcpy(pagebuffer.data(), mCurrentDataBuffer.data(), mCurrentDataBuffer.size());
+            mPagehandler.addPageForLink(mCurrentEquipment, headernew, pagebuffer);
         }
     }
 }

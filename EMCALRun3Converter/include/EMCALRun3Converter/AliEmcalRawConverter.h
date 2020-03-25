@@ -15,6 +15,7 @@
 #include "Rtypes.h"
 #include "RStringView.h"
 #include "EMCALSimulation/DMAOutputStream.h"
+#include "EMCALSimulation/RawOutputPageHandler.h"
 
 class AliRawReaderRoot;
 class AliRawDataHeaderV3;
@@ -41,8 +42,8 @@ private:
     gsl::span<char> mCurrentDataBuffer;
     const AliRawDataHeaderV3 *mCurrentHeader;
     Int_t mCurrentEquipment;
-    
-    DMAOutputStream mOutputStream;
+    InteractionRecord mCurrentIR;
+    RawOutputPageHandler mPagehandler;
 
     ClassDefNV(AliEmcalRawConverter, 1)
 }; // namespace emcal
