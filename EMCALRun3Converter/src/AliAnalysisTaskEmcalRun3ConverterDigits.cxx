@@ -76,7 +76,7 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
     fQAHistos->Add(new TH1D("nTimeframesAll", "Number of timeframes", 1, 0.5, 1.5));
     fQAHistos->Add(new TH1D("nEventsTimeframe", "Number of events per fimeframe", 500, 0., 500.));
     fQAHistos->Add(new TH1D("nTriggersTimeframe", "Number of triggers per fimeframe", 500, 0., 500.));
-    fQAHistos->Add(new TH1D("nDigitsTimeframe", "Number of digits per timeframe", 20000, 0., 20000.));
+    fQAHistos->Add(new TH1D("nDigitsTimeframe", "Number of digits per timeframe", 1000, 0., 100000.));
     fQAHistos->Add(new TH1D("nDigitsTrigger", "Number of digits per trigger", 5000, 0., 5000.));
     for(auto en : TRangeDynCast<TH1>(fQAHistos)) fHistHandler[en->GetName()] = en;
 
@@ -114,7 +114,6 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
 
     if(fCurrentEvent >= fEventsTimeframe) WriteDigits();
 
-    fO2simtree->Fill();
     PostData(1, fO2simtree);
     PostData(2, fQAHistos);
 }
