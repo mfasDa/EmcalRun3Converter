@@ -8,9 +8,11 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 #include <iostream>
+#include <TH1.h>
+#include <TList.h>
 #include <TRandom.h>
-#include "TTree.h"
-#include "TString.h"
+#include <TTree.h>
+#include <TString.h>
 #include "AliAnalysisManager.h"
 #include "EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h"
 #include "DataFormatsEMCAL/Constants.h"
@@ -27,6 +29,8 @@ AliAnalysisTaskEmcalRun3ConverterDigits::AliAnalysisTaskEmcalRun3ConverterDigits
     AliAnalysisTaskSE(name),
     fO2simtree(nullptr),
     fTimeframeLengthCreator(nullptr),
+    fQAHistos(nullptr),
+    fHistHandler(),
     fDigitContainer(nullptr),
     fDigitTriggerRecords(nullptr),
     fTrigger("INT7"),
@@ -36,6 +40,7 @@ AliAnalysisTaskEmcalRun3ConverterDigits::AliAnalysisTaskEmcalRun3ConverterDigits
 
 {
     DefineOutput(1, TTree::Class());
+    DefineOutput(2, TList::Class());
 }
 
 AliAnalysisTaskEmcalRun3ConverterDigits::~AliAnalysisTaskEmcalRun3ConverterDigits() {
@@ -65,18 +70,30 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserCreateOutputObjects(){
     fCurrentEvent = 0;
     fEventsTimeframe = fTimeframeLengthCreator->Gaus(300, 10);
 
+    fQAHistos = new TList;
+    fQAHistos->SetOwner(true);
+    fQAHistos->Add(new TH1D("nEventsAll", "Number of events", 1, 0.5, 1.5));
+    fQAHistos->Add(new TH1D("nTimeframesAll", "Number of timeframes", 1, 0.5, 1.5));
+    fQAHistos->Add(new TH1D("nEventsTimeframe", "Number of events per fimeframe", 500, 0., 500.));
+    fQAHistos->Add(new TH1D("nTriggersTimeframe", "Number of triggers per fimeframe", 500, 0., 500.));
+    fQAHistos->Add(new TH1D("nDigitsTimeframe", "Number of digits per timeframe", 20000, 0., 20000.));
+    fQAHistos->Add(new TH1D("nDigitsTrigger", "Number of digits per trigger", 5000, 0., 5000.));
+    for(auto en : TRangeDynCast<TH1>(fQAHistos)) fHistHandler[en->GetName()] = en;
+
     OpenFile(1);
     fO2simtree = new TTree("o2sim", "o2sim");
     fO2simtree->Branch("EMCALDigit", &fDigitContainer);
     fO2simtree->Branch("EMCALDigitTRGR", &fDigitTriggerRecords);
 
     PostData(1, fO2simtree);
+    PostData(2, fQAHistos);
 }
 
 void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
     const double SECONDSTONANOSECONDS = 1e9;
     if(!(fInputHandler->IsEventSelected() & fTriggerBits)) return;
     if(!fInputEvent->GetFiredTriggerClasses().Contains(fTrigger.data())) return;
+    fHistHandler["nEventsAll"]->Fill(1.);
     AliDebugStream(1) << "Selecting trigger " << fTrigger << ": " << fInputEvent->GetFiredTriggerClasses() << std::endl;
     auto cells = fInputEvent->GetEMCALCells();
     int currentcell = fDigitContainer->size(), ndigitsevent = 0;
@@ -86,6 +103,7 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
         fDigitContainer->back().setType(celltype);
         ndigitsevent++;
     }
+    fHistHandler["nDigitsTrigger"]->Fill(ndigitsevent);
     AliDebugStream(1) << "Cell container has " << fDigitContainer->size() << " cell" << std::endl;
 
     o2::InteractionRecord bcdata;
@@ -98,6 +116,7 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::UserExec(Option_t *){
 
     fO2simtree->Fill();
     PostData(1, fO2simtree);
+    PostData(2, fQAHistos);
 }
 
 void AliAnalysisTaskEmcalRun3ConverterDigits::FinishTaskOutput(){
@@ -107,6 +126,11 @@ void AliAnalysisTaskEmcalRun3ConverterDigits::FinishTaskOutput(){
 void AliAnalysisTaskEmcalRun3ConverterDigits::WriteDigits() {
     AliInfoStream() << "Writing new time frame with " << fDigitTriggerRecords->size() << " events and " << fDigitContainer->size() << " digits " << std::endl;
     fO2simtree->Fill();
+    // Fill some QA histograms
+    fHistHandler["nTimeframesAll"]->Fill(1.);
+    fHistHandler["nEventsTimeframe"]->Fill(fCurrentEvent);
+    fHistHandler["nTriggersTimeframe"]->Fill(fDigitTriggerRecords->size());
+    fHistHandler["nDigitsTimeframe"]->Fill(fDigitContainer->size());
     // prepare for new time frame
     fCurrentEvent = 0;
     fEventsTimeframe = fTimeframeLengthCreator->Gaus(300, 10);
@@ -126,6 +150,7 @@ AliAnalysisTaskEmcalRun3ConverterDigits *AliAnalysisTaskEmcalRun3ConverterDigits
 
     mgr->ConnectInput(task, 0, mgr->GetCommonInputContainer());
     mgr->ConnectOutput(task, 1, mgr->CreateContainer("o2sim", TTree::Class(), AliAnalysisManager::kOutputContainer, outputfile));
+    mgr->ConnectOutput(task, 2, mgr->CreateContainer("DigitsConversionHistos", TList::Class(), AliAnalysisManager::kOutputContainer, mgr->GetCommonFileName()));
 
     return task;
 }

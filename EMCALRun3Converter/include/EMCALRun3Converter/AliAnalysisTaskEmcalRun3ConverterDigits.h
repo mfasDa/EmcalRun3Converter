@@ -13,9 +13,11 @@
 #include "AliAnalysisTaskSE.h"
 #include "DataFormatsEMCAL/Digit.h"
 #include "DataFormatsEMCAL/TriggerRecord.h"
+#include <map>
 #include <string>
 #include <vector>
 
+class THistManager;
 class TRandom;
 class TTree;
 
@@ -42,16 +44,18 @@ protected:
 
     void WriteDigits();
 private:
-    TTree*                                  fO2simtree;
-    TRandom*                                fTimeframeLengthCreator;
-    std::vector<o2::emcal::Digit>*          fDigitContainer;
-    std::vector<o2::emcal::TriggerRecord>*  fDigitTriggerRecords;
-    std::string                             fTrigger;
-    UInt_t                                  fTriggerBits;
-    UInt_t                                  fCurrentEvent;
-    UInt_t                                  fEventsTimeframe;
+    TTree*                                  fO2simtree;                     //!
+    TRandom*                                fTimeframeLengthCreator;        //!
+    TList*                                  fQAHistos;                      //!
+    std::map<std::string, TH1 *>            fHistHandler;                   //!
+    std::vector<o2::emcal::Digit>*          fDigitContainer;                //!            
+    std::vector<o2::emcal::TriggerRecord>*  fDigitTriggerRecords;           //!
+    std::string                             fTrigger;                       //
+    UInt_t                                  fTriggerBits;                   //
+    UInt_t                                  fCurrentEvent;                  //
+    UInt_t                                  fEventsTimeframe;               //
 
-    ClassDef(AliAnalysisTaskEmcalRun3ConverterDigits, 2);
+    ClassDef(AliAnalysisTaskEmcalRun3ConverterDigits, 3);
 };
 
 }

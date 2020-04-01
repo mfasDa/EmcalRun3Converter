@@ -43,14 +43,16 @@ protected:
     void WriteCells();
 
 private:
-    TTree*                                  fO2simtree;
-    TRandom*                                fTimeframeLengthCreator;
-    std::vector<o2::emcal::Cell>*           fCellContainer;
-    std::vector<o2::emcal::TriggerRecord>*  fCellTriggerRecords;
-    std::string                             fTrigger;
-    UInt_t                                  fTriggerBits;
-    UInt_t                                  fCurrentEvent;
-    UInt_t                                  fEventsTimeframe;
+    TTree*                                  fO2simtree;                     //!
+    TRandom*                                fTimeframeLengthCreator;        //!
+    TList*                                  fQAHistos;                      //!
+    std::map<std::string, TH1 *>            fHistHandler;                   //!
+    std::vector<o2::emcal::Cell>*           fCellContainer;                 //!            
+    std::vector<o2::emcal::TriggerRecord>*  fCellTriggerRecords;            //!
+    std::string                             fTrigger;                       //
+    UInt_t                                  fTriggerBits;                   //
+    UInt_t                                  fCurrentEvent;                  //
+    UInt_t                                  fEventsTimeframe;               //
 
     ClassDef(AliAnalysisTaskEmcalRun3ConverterCells, 2);
 };
