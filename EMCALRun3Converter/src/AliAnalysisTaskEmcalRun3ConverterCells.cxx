@@ -101,7 +101,7 @@ void AliAnalysisTaskEmcalRun3ConverterCells::UserExec(Option_t *){
         fCellContainer->back().setType(celltype);
         ncellsevent++;
     }
-    fHistHandler["nDigitsTrigger"]->Fill(ncellsevent);
+    fHistHandler["nCellsTrigger"]->Fill(ncellsevent);
     AliDebugStream(1) << "After event " << fCurrentEvent << ": Cell container has " << fCellContainer->size() << " cell" << std::endl;
 
     o2::InteractionRecord bcdata;
