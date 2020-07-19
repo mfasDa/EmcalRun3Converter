@@ -50,12 +50,9 @@ find_package(
 
 find_package(ROOT 6.16.00 REQUIRED)
 find_package(AliRoot REQUIRED)
-find_package(O2 MODULE REQUIRED)
+find_package(O2 CONFIG REQUIRED)
 
 include(CheckCXXCompilerFlag)
-
-# ROOT dictionaries and maps
-include(ROOTHelper)
 
 #Determine ROOT c++ standard
 execute_process(COMMAND root-config --has-cxx11 OUTPUT_VARIABLE ROOT_HAS_C++11)

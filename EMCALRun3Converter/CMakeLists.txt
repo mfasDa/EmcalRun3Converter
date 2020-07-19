@@ -8,9 +8,11 @@
 # granted to it by virtue of its status as an Intergovernmental Organization
 # or submit itself to any jurisdiction.
 
-add_library(EMCALRun3Converter src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
-                               src/AliAnalysisTaskEmcalRun3ConverterCells.cxx
-                               src/AliEmcalRawConverter.cxx)
+add_library(EMCALRun3Converter)
+
+target_sources(EMCALRun3Converter PRIVATE src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
+                                          src/AliAnalysisTaskEmcalRun3ConverterCells.cxx
+                                          src/AliEmcalRawConverter.cxx)
 
 target_include_directories(
   EMCALRun3Converter
@@ -21,11 +23,13 @@ target_include_directories(
 target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::EMCALSimulation O2::Headers AliRoot::AliRoot Boost::serialization)
 
 add_root_dictionary(EMCALRun3Converter
-                    HEADERS include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
+                    HEADERS 
+                            include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
                             include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterCells.h
                             include/EMCALRun3Converter/AliEmcalRawConverter.h
-                    LINKDEF include/EMCALRun3Converter/LinkDef.h
-                    BASENAME EMCALRun3Converter)
+                    LINKDEF 
+                            include/EMCALRun3Converter/LinkDef.h
+                    )
 
 install(TARGETS EMCALRun3Converter
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
