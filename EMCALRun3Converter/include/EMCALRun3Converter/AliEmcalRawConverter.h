@@ -14,8 +14,8 @@
 #include <string>
 #include "Rtypes.h"
 #include "RStringView.h"
-#include "EMCALSimulation/DMAOutputStream.h"
-#include "EMCALSimulation/RawOutputPageHandler.h"
+#include "CommonDataFormat/InteractionRecord.h"
+#include "DetectorsRaw/RawFileWriter.h"
 
 class AliRawReaderRoot;
 class AliRawDataHeaderV3;
@@ -23,32 +23,50 @@ class AliRawDataHeaderV3;
 namespace o2
 {
 
-namespace emcal
-{
+    namespace emcal
+    {
 
-class AliEmcalRawConverter
-{
-public:
-    AliEmcalRawConverter() = default;
-    AliEmcalRawConverter(const std::string_view filerawin, const std::string_view filerawout);
-    ~AliEmcalRawConverter() = default;
+        class AliEmcalRawConverter
+        {
+        public:
+            enum class FileFor_t
+            {
+                kFullDet,
+                kSubDet,
+                kLink
+            };
+            AliEmcalRawConverter() = default;
+            AliEmcalRawConverter(const std::string_view filerawin, const std::string_view outputloc);
+            ~AliEmcalRawConverter() = default;
 
-    void setInputFile(const char *name) { mInputFile = name; }
-    void convert();
+            void setInputFile(const char *name) { mInputFile = name; }
+            void setOuputLocation(const char *outputloc) { mOutputLocation = outputloc; }
+            void setFileFor(FileFor_t filefor) { mFileFor = filefor; }
+            void convert();
 
-private:
-    bool nextDDL(AliRawReaderRoot &reader);
-    std::string mInputFile;
-    gsl::span<char> mCurrentDataBuffer;
-    const AliRawDataHeaderV3 *mCurrentHeader;
-    Int_t mCurrentEquipment;
-    InteractionRecord mCurrentIR;
-    RawOutputPageHandler mPagehandler;
+            int carryOverMethod(const header::RDHAny* rdh, const gsl::span<char> data,
+                      const char* ptr, int maxSize, int splitID,
+                      std::vector<char>& trailer, std::vector<char>& header) const;
 
-    ClassDefNV(AliEmcalRawConverter, 1)
-}; // namespace emcal
+        protected:
+            void initRawWriter();
+            std::tuple<int, int> getLinkAssignment(int ddlID);
 
-} // namespace emcal
+        private:
+            bool nextDDL(AliRawReaderRoot &reader);
+            std::string mInputFile;
+            std::string mOutputLocation;
+            FileFor_t mFileFor;
+            gsl::span<char> mCurrentDataBuffer;
+            const AliRawDataHeaderV3 *mCurrentHeader;
+            Int_t mCurrentEquipment;
+            InteractionRecord mCurrentIR;
+            raw::RawFileWriter mOutputWriter;
+
+            ClassDefNV(AliEmcalRawConverter, 1)
+        }; // namespace emcal
+
+    } // namespace emcal
 
 } // namespace o2
 
