@@ -32,6 +32,7 @@ public:
     virtual ~AliAnalysisTaskEmcalRun3ConverterCells();
 
     void SetTrigger(const char *trigger) { fTrigger = trigger; }
+    void SetCellTimeShift(double timeshiftns) { fCellTimeShift = timeshiftns; }
 
     static AliAnalysisTaskEmcalRun3ConverterCells *AddTaskEmcalRun3ConverterCells(const char *name, const char *outputfile = "emcal.cells.root");
 
@@ -53,6 +54,7 @@ private:
     UInt_t                                  fTriggerBits;                   //
     UInt_t                                  fCurrentEvent;                  //
     UInt_t                                  fEventsTimeframe;               //
+    Double_t                                fCellTimeShift;                 // time shift applied (in nanosec)
 
     ClassDef(AliAnalysisTaskEmcalRun3ConverterCells, 2);
 };

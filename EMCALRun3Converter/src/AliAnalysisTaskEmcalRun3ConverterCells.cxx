@@ -36,7 +36,8 @@ AliAnalysisTaskEmcalRun3ConverterCells::AliAnalysisTaskEmcalRun3ConverterCells(c
     fTrigger("INT7"),
     fTriggerBits(-1),
     fCurrentEvent(0),
-    fEventsTimeframe(0)
+    fEventsTimeframe(0),
+    fCellTimeShift(0.)
 {
     DefineOutput(1, TTree::Class());
     DefineOutput(2, TList::Class());
@@ -96,8 +97,11 @@ void AliAnalysisTaskEmcalRun3ConverterCells::UserExec(Option_t *){
     auto cells = fInputEvent->GetEMCALCells();
     int currentcell = fCellContainer->size(), ncellsevent = 0;
     for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) {
-        fCellContainer->emplace_back(cells->GetCellNumber(icell), cells->GetAmplitude(icell), cells->GetTime(icell) * SECONDSTONANOSECONDS);
         ChannelType_t celltype = cells->GetHighGain(icell) ? ChannelType_t::HIGH_GAIN : ChannelType_t::LOW_GAIN;
+        if(celltype == ChannelType_t::LOW_GAIN) std::cout << "Found a low gain cell" << std::endl;
+        auto celltime = cells->GetTime(icell) * SECONDSTONANOSECONDS;
+        if(TMath::Abs(fCellTimeShift) > DBL_EPSILON) celltime += fCellTimeShift;
+        fCellContainer->emplace_back(cells->GetCellNumber(icell), cells->GetAmplitude(icell), celltime, celltype);
         fCellContainer->back().setType(celltype);
         ncellsevent++;
     }
