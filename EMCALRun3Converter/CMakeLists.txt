@@ -12,7 +12,9 @@ add_library(EMCALRun3Converter)
 
 target_sources(EMCALRun3Converter PRIVATE src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
                                           src/AliAnalysisTaskEmcalRun3ConverterCells.cxx
-                                          src/AliEmcalRawConverter.cxx)
+                                          src/AliEmcalRawConverter.cxx
+                                          src/AliEmcalCalibDBConverter.cxx
+                                          )
 
 target_include_directories(
   EMCALRun3Converter
@@ -20,7 +22,7 @@ target_include_directories(
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::EMCALSimulation O2::Headers O2::DetectorsRaw AliRoot::AliRoot Boost::serialization)
+target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::EMCALSimulation O2::EMCALCalib O2::Headers O2::DetectorsRaw O2::CCDB AliRoot::AliRoot Boost::serialization)
 
 add_root_dictionary(EMCALRun3Converter
                     HEADERS 
@@ -53,6 +55,12 @@ install(TARGETS runEmcalRun3CellsConverter
 
 add_executable(runEmcalRun3RawConverter src/runEmcalRun3RawConverter.cxx)
 target_link_libraries(runEmcalRun3RawConverter EMCALRun3Converter O2::EMCALBase O2::EMCALSimulation O2::Headers AliRoot::AliRoot Boost::program_options)
+install(TARGETS runEmcalRun3RawConverter
+    RUNTIME DESTINATION bin
+)
+
+add_executable(runEmcalRun3ConverterCalib src/runEmcalRun3ConverterCalib.cxx)
+target_link_libraries(runEmcalRun3ConverterCalib EMCALRun3Converter O2::EMCALCalib O2::CCDB AliRoot::AliRoot Boost::program_options)
 install(TARGETS runEmcalRun3RawConverter
     RUNTIME DESTINATION bin
 )
