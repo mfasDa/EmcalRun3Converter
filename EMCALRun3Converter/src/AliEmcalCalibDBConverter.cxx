@@ -72,12 +72,18 @@ void AliEmcalCalibDBConverter::convertBadCells(int runnumber, long timestamp)
 void AliEmcalCalibDBConverter::convertTimeCalib(int runnumber, long timestamp)
 {
   std::cout << "Creating run3 equivalent time calib object based on run " << runnumber << ", " << std::endl
-            << "using input file " << AliDataFile::GetFileNameOADB("EMCAL/EMCALTimeCalibMergedBCs.root") << std::endl;
+            << "using input file " << AliDataFile::GetFileNameOADB("EMCAL/EMCALTimeCalibMergedBCs.root") << std::endl
+            << "using time offset " << mTimeOffset << std::endl;
   AliOADBContainer timeCalibRun2("AliEMCALTimeCalib", "AliEMCALTimeCalib");
   timeCalibRun2.InitFromFile(AliDataFile::GetFileNameOADB("EMCAL/EMCALTimeCalibMergedBCs.root").data(), "AliEMCALTimeCalib");
   auto timeCalibHistos = static_cast<TObjArray*>(timeCalibRun2.GetObject(runnumber));
-  auto timeCalibHG = static_cast<TH1*>(timeCalibHistos->At(0)),
-       timeCalibLG = static_cast<TH1*>(timeCalibHistos->At(1));
+  auto pass1Histos = static_cast<TObjArray*>(timeCalibHistos->FindObject("pass1"));
+  auto timeCalibHG = static_cast<TH1*>(pass1Histos->FindObject("hAllTimeAv")),
+       timeCalibLG = static_cast<TH1*>(pass1Histos->FindObject("hAllTimeAvLG"));
+  if (!timeCalibHG)
+    std::cerr << "Did not find time calib histo for HG cells" << std::endl;
+  if (!timeCalibLG)
+    std::cerr << "Did not find time calib histo for LG cells" << std::endl;
 
   o2::emcal::TimeCalibrationParams timeCalibRun3;
   for (auto icell : ROOT::TSeqI(0, 17664)) {

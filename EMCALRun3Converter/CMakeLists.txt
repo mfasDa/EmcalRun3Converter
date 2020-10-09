@@ -61,6 +61,6 @@ install(TARGETS runEmcalRun3RawConverter
 
 add_executable(runEmcalRun3ConverterCalib src/runEmcalRun3ConverterCalib.cxx)
 target_link_libraries(runEmcalRun3ConverterCalib EMCALRun3Converter O2::EMCALCalib O2::CCDB AliRoot::AliRoot Boost::program_options)
-install(TARGETS runEmcalRun3RawConverter
+install(TARGETS runEmcalRun3ConverterCalib
     RUNTIME DESTINATION bin
 )

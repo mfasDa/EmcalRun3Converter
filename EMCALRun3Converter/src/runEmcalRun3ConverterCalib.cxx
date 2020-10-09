@@ -20,8 +20,7 @@ int main(int argc, const char** argv)
   long timestamp(-1);
   int timeshift(0), runnumber(0);
   boost::program_options::options_description desc("Allowed options");
-  desc.add_options()("help", "produce help message")("run", boost::program_options::value<int>(&runnumber)->default_value(0), "Run number to be converted")("timestamp", boost::program_options::value<long>(&timestamp)->default_value(-1), "Output timestamp in CCDB")("timeshift", boost::program_options::value<int>(&timeshift)->default_value(0), "Time shift to be applied in the converion of the time calib params");
-  ("url", boost::program_options::value<std::string>(&url)->default_value("emcccdb-test.cern.ch:8080"), "inputfile to be produced with o2 digits");
+  desc.add_options()("help", "produce help message")("run", boost::program_options::value<int>(&runnumber)->default_value(0), "Run number to be converted")("timestamp", boost::program_options::value<long>(&timestamp)->default_value(-1), "Output timestamp in CCDB")("timeshift", boost::program_options::value<int>(&timeshift)->default_value(0), "Time shift to be applied in the converion of the time calib params")("url", boost::program_options::value<std::string>(&url)->default_value("emcccdb-test.cern.ch:8080"), "inputfile to be produced with o2 digits");
   boost::program_options::variables_map optionmap;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), optionmap);
   boost::program_options::notify(optionmap);
