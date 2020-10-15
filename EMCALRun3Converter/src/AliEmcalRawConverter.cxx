@@ -81,6 +81,8 @@ void AliEmcalRawConverter::initRawWriter()
     }
     mOutputWriter.registerLink(iddl, crorc, link, 0, rawfilename.data());
   }
+  mOutputWriter.setCarryOverCallBack(this);
+  mOutputWriter.setApplyCarryOverToLastPage(true)
 }
 
 void AliEmcalRawConverter::convert()
