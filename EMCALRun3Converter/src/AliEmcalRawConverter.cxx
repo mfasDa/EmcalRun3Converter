@@ -29,6 +29,8 @@ AliEmcalRawConverter::AliEmcalRawConverter(const std::string_view filerawin, con
                                                                                                                  mCurrentEquipment(-1),
                                                                                                                  mOutputWriter(o2::header::gDataOriginEMC, false)
 {
+  mOutputWriter.setRORCDetector();
+  initRawWriter();
 }
 
 bool AliEmcalRawConverter::nextDDL(AliRawReaderRoot& reader)
@@ -102,7 +104,9 @@ void AliEmcalRawConverter::convert()
       memcpy(pagebuffer.data(), mCurrentDataBuffer.data(), mCurrentDataBuffer.size());
       int iddl = mCurrentEquipment - MIN_DDL_EMCAL;
       auto [crorc, link] = getLinkAssignment(iddl);
+      std::cout << "Adding data for ddl " << iddl << ", c-rorc " << crorc << ", link " << link << std::endl;
       mOutputWriter.addData(iddl, crorc, link, 0, mCurrentIR, pagebuffer);
+      std::cout << "Adding data done" << std::endl;
     }
   }
 }
