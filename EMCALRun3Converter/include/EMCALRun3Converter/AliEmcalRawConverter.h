@@ -23,50 +23,49 @@ class AliRawDataHeaderV3;
 namespace o2
 {
 
-    namespace emcal
-    {
+namespace emcal
+{
 
-        class AliEmcalRawConverter
-        {
-        public:
-            enum class FileFor_t
-            {
-                kFullDet,
-                kSubDet,
-                kLink
-            };
-            AliEmcalRawConverter() = default;
-            AliEmcalRawConverter(const std::string_view filerawin, const std::string_view outputloc);
-            ~AliEmcalRawConverter() = default;
+class AliEmcalRawConverter
+{
+ public:
+  enum class FileFor_t {
+    kFullDet,
+    kSubDet,
+    kLink
+  };
+  AliEmcalRawConverter() = default;
+  AliEmcalRawConverter(const std::string_view filerawin, const std::string_view outputloc);
+  ~AliEmcalRawConverter() = default;
 
-            void setInputFile(const char *name) { mInputFile = name; }
-            void setOuputLocation(const char *outputloc) { mOutputLocation = outputloc; }
-            void setFileFor(FileFor_t filefor) { mFileFor = filefor; }
-            void convert();
+  void setInputFile(const char* name) { mInputFile = name; }
+  void setOuputLocation(const char* outputloc) { mOutputLocation = outputloc; }
+  void setFileFor(FileFor_t filefor) { mFileFor = filefor; }
+  void convert();
 
-            int carryOverMethod(const header::RDHAny* rdh, const gsl::span<char> data,
+  int carryOverMethod(const header::RDHAny* rdh, const gsl::span<char> data,
                       const char* ptr, int maxSize, int splitID,
                       std::vector<char>& trailer, std::vector<char>& header) const;
 
-        protected:
-            void initRawWriter();
-            std::tuple<int, int> getLinkAssignment(int ddlID);
+ protected:
+  void initRawWriter();
+  std::tuple<int, int> getLinkAssignment(int ddlID);
 
-        private:
-            bool nextDDL(AliRawReaderRoot &reader);
-            std::string mInputFile;
-            std::string mOutputLocation;
-            FileFor_t mFileFor;
-            gsl::span<char> mCurrentDataBuffer;
-            const AliRawDataHeaderV3 *mCurrentHeader;
-            Int_t mCurrentEquipment;
-            InteractionRecord mCurrentIR;
-            raw::RawFileWriter mOutputWriter;
+ private:
+  bool nextDDL(AliRawReaderRoot& reader);
+  std::string mInputFile;
+  std::string mOutputLocation;
+  FileFor_t mFileFor;
+  gsl::span<char> mCurrentDataBuffer;
+  const AliRawDataHeaderV3* mCurrentHeader;
+  Int_t mCurrentEquipment;
+  InteractionRecord mCurrentIR;
+  raw::RawFileWriter mOutputWriter;
 
-            ClassDefNV(AliEmcalRawConverter, 1)
-        }; // namespace emcal
+  ClassDefNV(AliEmcalRawConverter, 1)
+}; // namespace emcal
 
-    } // namespace emcal
+} // namespace emcal
 
 } // namespace o2
 
