@@ -100,5 +100,5 @@ void AliEmcalCalibDBConverter::convertTimeCalib(int runnumber, long timestamp)
   std::cout << "Time calib ready, storing under EMC/TimeCalibParams with timestamp " << timestamp << std::endl;
 
   std::map<std::string, std::string> metadata;
-  mCcdbApi->storeAsTFileAny<o2::emcal::TimeCalibrationParams>(&timeCalibRun3, "EMC/TimeCalibParams", metadata, timestamp);
+  mCcdbApi->storeAsTFileAny<o2::emcal::TimeCalibrationParams>(&timeCalibRun3, "EMC/TimeCalibrationParams", metadata, timestamp);
 }
