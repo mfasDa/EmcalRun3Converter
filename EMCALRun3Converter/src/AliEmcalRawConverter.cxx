@@ -16,6 +16,7 @@
 #include "AliRawReaderRoot.h"
 
 #include "EMCALBase/RCUTrailer.h"
+#include "DetectorsRaw/RDHUtils.h"
 #include "EMCALRun3Converter/AliEmcalRawConverter.h"
 
 using namespace o2::emcal;
@@ -82,7 +83,7 @@ void AliEmcalRawConverter::initRawWriter()
     mOutputWriter.registerLink(iddl, crorc, link, 0, rawfilename.data());
   }
   mOutputWriter.setCarryOverCallBack(this);
-  mOutputWriter.setApplyCarryOverToLastPage(true)
+  mOutputWriter.setApplyCarryOverToLastPage(true);
 }
 
 void AliEmcalRawConverter::convert()
@@ -102,12 +103,13 @@ void AliEmcalRawConverter::convert()
     bool initTrigger(true);
     while (nextDDL(inputStream)) {
       std::cout << "Converting data for Equipment " << mCurrentEquipment << " (" << MIN_DDL_EMCAL << "," << MAX_DDL_EMCAL << ")\n";
-      std::vector<char> pagebuffer(mCurrentDataBuffer.size());
-      memcpy(pagebuffer.data(), mCurrentDataBuffer.data(), mCurrentDataBuffer.size());
       int iddl = mCurrentEquipment - MIN_DDL_EMCAL;
       auto [crorc, link] = getLinkAssignment(iddl);
-      std::cout << "Adding data for ddl " << iddl << ", c-rorc " << crorc << ", link " << link << std::endl;
-      mOutputWriter.addData(iddl, crorc, link, 0, mCurrentIR, pagebuffer);
+      gsl::span<const uint32_t> payloadwords(reinterpret_cast<const uint32_t*>(mCurrentDataBuffer.data()), mCurrentDataBuffer.size() / sizeof(uint32_t));
+      auto rcutrailer = RCUTrailer::constructFromPayloadWords(payloadwords);
+      std::cout << rcutrailer << std::endl;
+      std::cout << "Adding data for ddl " << iddl << ", c-rorc " << crorc << ", link " << link << " with size " <<  mCurrentDataBuffer.size() << std::endl;
+      mOutputWriter.addData(iddl, crorc, link, 0, mCurrentIR, mCurrentDataBuffer);
       std::cout << "Adding data done" << std::endl;
     }
   }
@@ -125,6 +127,7 @@ int AliEmcalRawConverter::carryOverMethod(const header::RDHAny* rdh, const gsl::
                                           const char* ptr, int maxSize, int splitID,
                                           std::vector<char>& trailer, std::vector<char>& header) const
 {
+  std::cout << "Calling carry-over method with data size " << data.size() << ", max size " << maxSize << ", splitID " << splitID << std::endl;
   int offs = ptr - &data[0]; // offset wrt the head of the payload
   // make sure ptr and end of the suggested block are within the payload
   assert(offs >= 0 && size_t(offs + maxSize) <= data.size());
@@ -132,8 +135,12 @@ int AliEmcalRawConverter::carryOverMethod(const header::RDHAny* rdh, const gsl::
   // Read trailer template from the end of payload
   gsl::span<const uint32_t> payloadwords(reinterpret_cast<const uint32_t*>(data.data()), data.size() / sizeof(uint32_t));
   auto rcutrailer = RCUTrailer::constructFromPayloadWords(payloadwords);
+  auto trailersize = rcutrailer.getTrailerSize() * sizeof(uint32_t);
+  // Cannot split trailer, suggest new page
+  if(maxSize < trailersize)
+    return 0;
 
-  int sizeNoTrailer = maxSize - rcutrailer.getTrailerSize() * sizeof(uint32_t);
+  int sizeNoTrailer = maxSize - trailersize;
   // calculate payload size for RCU trailer:
   // assume actualsize is in byte
   // Payload size is defined as the number of 32-bit payload words
@@ -152,5 +159,6 @@ int AliEmcalRawConverter::carryOverMethod(const header::RDHAny* rdh, const gsl::
   if (!lastPage) {
     actualSize = sizeNoTrailer;
   }
+  std::cout << "Carry-over method: max size: " << maxSize << ", sizeNoTrailer " << sizeNoTrailer << ", actualSize " << actualSize << std::endl;
   return actualSize;
 }
