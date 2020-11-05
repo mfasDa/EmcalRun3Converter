@@ -61,6 +61,7 @@ void AliEmcalCalibDBConverter::convertBadCells(int runnumber, long timestamp)
         statusRun3 = o2::emcal::BadChannelMap::MaskType_t::BAD_CELL;
         break;
     };
+    bcmrun3.addBadChannel(icell, statusRun3);
   }
 
   std::cout << "Bad channel map ready, storing under EMC/BadChannelMap with timestamp " << timestamp << std::endl;
