@@ -38,6 +38,7 @@ class AliEmcalRawConverter
   AliEmcalRawConverter(const std::string_view filerawin, const std::string_view outputloc);
   ~AliEmcalRawConverter() = default;
 
+  void setStartTimeRun(long timestamp) { mStartTimeRun = timestamp; }
   void setInputFile(const char* name) { mInputFile = name; }
   void setOuputLocation(const char* outputloc) { mOutputLocation = outputloc; }
   void setFileFor(FileFor_t filefor) { mFileFor = filefor; }
@@ -59,6 +60,8 @@ class AliEmcalRawConverter
   gsl::span<char> mCurrentDataBuffer;
   const AliRawDataHeaderV3* mCurrentHeader;
   Int_t mCurrentEquipment;
+  Long_t mStartTimeRun;
+  bool mRawWriterInitialized;
   InteractionRecord mCurrentIR;
   raw::RawFileWriter mOutputWriter;
 

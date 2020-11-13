@@ -98,7 +98,7 @@ void AliAnalysisTaskEmcalRun3ConverterCells::UserExec(Option_t *){
     int currentcell = fCellContainer->size(), ncellsevent = 0;
     for(int icell = 0; icell < cells->GetNumberOfCells(); icell++) {
         ChannelType_t celltype = cells->GetHighGain(icell) ? ChannelType_t::HIGH_GAIN : ChannelType_t::LOW_GAIN;
-        if(celltype == ChannelType_t::LOW_GAIN) std::cout << "Found a low gain cell" << std::endl;
+        if(celltype == ChannelType_t::LOW_GAIN) AliDebugStream(1) << "Found a low gain cell" << std::endl;
         auto celltime = cells->GetTime(icell) * SECONDSTONANOSECONDS;
         if(TMath::Abs(fCellTimeShift) > DBL_EPSILON) celltime += fCellTimeShift;
         fCellContainer->emplace_back(cells->GetCellNumber(icell), cells->GetAmplitude(icell), celltime, celltype);

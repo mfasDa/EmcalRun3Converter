@@ -28,10 +28,11 @@ AliEmcalRawConverter::AliEmcalRawConverter(const std::string_view filerawin, con
                                                                                                                  mCurrentDataBuffer(),
                                                                                                                  mCurrentHeader(nullptr),
                                                                                                                  mCurrentEquipment(-1),
+                                                                                                                 mStartTimeRun(-1),
+                                                                                                                 mRawWriterInitialized(false),
                                                                                                                  mOutputWriter(o2::header::gDataOriginEMC, false)
 {
   mOutputWriter.setRORCDetector();
-  initRawWriter();
 }
 
 bool AliEmcalRawConverter::nextDDL(AliRawReaderRoot& reader)
@@ -84,12 +85,16 @@ void AliEmcalRawConverter::initRawWriter()
   }
   mOutputWriter.setCarryOverCallBack(this);
   mOutputWriter.setApplyCarryOverToLastPage(true);
+  mRawWriterInitialized = true;
 }
 
 void AliEmcalRawConverter::convert()
 {
   const int MIN_DDL_EMCAL = AliDAQ::DdlIDOffset("EMCAL"),
             MAX_DDL_EMCAL = MIN_DDL_EMCAL + AliDAQ::GetFirstSTUDDL() - 1; // Discard STU DDLs
+  if(!mRawWriterInitialized) {
+    initRawWriter();
+  }
   std::cout << "Using DDL range " << MIN_DDL_EMCAL << " to " << MAX_DDL_EMCAL << std::endl;
   AliRawReaderRoot inputStream(mInputFile.data());
   inputStream.Select("EMCAL", 0, AliDAQ::GetFirstSTUDDL() - 1);
@@ -97,6 +102,10 @@ void AliEmcalRawConverter::convert()
   unsigned char* dataptr(nullptr);
   bool initIR(true);
 
+  const int MUS_TO_NS = 1000;
+  int busytime = 100 * MUS_TO_NS;
+
+  long currenttime = mStartTimeRun;
   while (inputStream.NextEvent()) {
     std::cout << "Reading next event" << std::endl;
     inputStream.Reset();
@@ -109,7 +118,15 @@ void AliEmcalRawConverter::convert()
       auto rcutrailer = RCUTrailer::constructFromPayloadWords(payloadwords);
       std::cout << rcutrailer << std::endl;
       std::cout << "Adding data for ddl " << iddl << ", c-rorc " << crorc << ", link " << link << " with size " <<  mCurrentDataBuffer.size() << std::endl;
-      mOutputWriter.addData(iddl, crorc, link, 0, mCurrentIR, mCurrentDataBuffer);
+      o2::InteractionRecord currentIR;
+      if(currenttime >= 0) {
+        // Set Run3 fake timestamps
+        currentIR.setFromNS(currenttime);
+        currenttime += busytime;
+      } else {
+        currentIR = mCurrentIR;
+      }
+      mOutputWriter.addData(iddl, crorc, link, 0, currentIR, mCurrentDataBuffer);
       std::cout << "Adding data done" << std::endl;
     }
   }
