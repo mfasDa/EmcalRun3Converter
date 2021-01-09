@@ -22,7 +22,7 @@ target_include_directories(
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::EMCALSimulation O2::EMCALCalib O2::Headers O2::DetectorsRaw O2::CCDB AliRoot::AliRoot Boost::serialization)
+target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::EMCALSimulation O2::EMCALCalib O2::Headers O2::DetectorsRaw O2::CCDB O2::CommonConstants AliRoot::AliRoot Boost::serialization)
 
 add_root_dictionary(EMCALRun3Converter
                     HEADERS 

@@ -14,7 +14,9 @@
 
 #include "AliDAQ.h"
 #include "AliRawReaderRoot.h"
+#include "AliRawEventHeaderBase.h"
 
+#include "CommonConstants/Triggers.h"
 #include "EMCALBase/RCUTrailer.h"
 #include "DetectorsRaw/RDHUtils.h"
 #include "EMCALRun3Converter/AliEmcalRawConverter.h"
@@ -106,7 +108,17 @@ void AliEmcalRawConverter::convert()
   int busytime = 100 * MUS_TO_NS;
 
   long currenttime = mStartTimeRun;
+  uint32_t trigger;
   while (inputStream.NextEvent()) {
+    auto type = inputStream.GetType();
+    if(type == AliRawEventHeaderBase::kCalibrationEvent) {
+         trigger = o2::trigger::Cal;
+    } else if (type == AliRawEventHeaderBase::kPhysicsEvent) {
+      trigger = o2::trigger::PhT;
+    } else {
+      std::cerr << "Unknown trigger type " << type << ", skipping ..." << std::endl;
+      continue;
+    }
     std::cout << "Reading next event" << std::endl;
     inputStream.Reset();
     bool initTrigger(true);
@@ -126,7 +138,7 @@ void AliEmcalRawConverter::convert()
       } else {
         currentIR = mCurrentIR;
       }
-      mOutputWriter.addData(iddl, crorc, link, 0, currentIR, mCurrentDataBuffer);
+      mOutputWriter.addData(iddl, crorc, link, 0, currentIR, mCurrentDataBuffer, false, trigger);
       std::cout << "Adding data done" << std::endl;
     }
   }

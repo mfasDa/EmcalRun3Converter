@@ -20,6 +20,7 @@
 #include "AliLog.h"
 #include "AliVCaloCells.h"
 #include "AliVEvent.h"
+#include "CommonConstants/Triggers.h"
 
 ClassImp(o2::emcal::AliAnalysisTaskEmcalRun3ConverterCells)
 
@@ -111,7 +112,7 @@ void AliAnalysisTaskEmcalRun3ConverterCells::UserExec(Option_t *){
     o2::InteractionRecord bcdata;
     bcdata.bc = fInputEvent->GetHeader()->GetTimeStamp();
     bcdata.orbit = fInputEvent->GetHeader()->GetOrbitNumber();
-    fCellTriggerRecords->emplace_back(bcdata, currentcell, ncellsevent);
+    fCellTriggerRecords->emplace_back(bcdata, o2::trigger::PhT, currentcell, ncellsevent);
     fCurrentEvent++;
 
     if(fCurrentEvent >= fEventsTimeframe) WriteCells();
