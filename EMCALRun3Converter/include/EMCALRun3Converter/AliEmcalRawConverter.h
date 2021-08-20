@@ -25,6 +25,7 @@ namespace o2
 
 namespace emcal
 {
+class Geometry;
 
 class AliEmcalRawConverter
 {
@@ -50,7 +51,7 @@ class AliEmcalRawConverter
 
  protected:
   void initRawWriter();
-  std::tuple<int, int> getLinkAssignment(int ddlID);
+  int getEndpoint(int ddlID);
 
  private:
   bool nextDDL(AliRawReaderRoot& reader);
@@ -64,6 +65,7 @@ class AliEmcalRawConverter
   bool mRawWriterInitialized;
   InteractionRecord mCurrentIR;
   raw::RawFileWriter mOutputWriter;
+  Geometry * mGeom;
 
   ClassDefNV(AliEmcalRawConverter, 1)
 }; // namespace emcal

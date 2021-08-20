@@ -18,6 +18,8 @@
 
 #include "CommonConstants/Triggers.h"
 #include "EMCALBase/RCUTrailer.h"
+#include "EMCALBase/Mapper.h"
+#include "EMCALBase/Geometry.h"
 #include "DetectorsRaw/RDHUtils.h"
 #include "EMCALRun3Converter/AliEmcalRawConverter.h"
 
@@ -32,7 +34,8 @@ AliEmcalRawConverter::AliEmcalRawConverter(const std::string_view filerawin, con
                                                                                                                  mCurrentEquipment(-1),
                                                                                                                  mStartTimeRun(-1),
                                                                                                                  mRawWriterInitialized(false),
-                                                                                                                 mOutputWriter(o2::header::gDataOriginEMC, false)
+                                                                                                                 mOutputWriter(o2::header::gDataOriginEMC, false),
+                                                                                                                 mGeom(nullptr)
 {
   mOutputWriter.setRORCDetector();
 }
@@ -59,13 +62,15 @@ bool AliEmcalRawConverter::nextDDL(AliRawReaderRoot& reader)
 
 void AliEmcalRawConverter::initRawWriter()
 {
+  if(!mGeom) mGeom = Geometry::GetInstanceFromRunNumber(300000);
   for (int iddl = 0; iddl < 40; iddl++) {
     // For EMCAL set
     // - FEE ID = DDL ID
     // - C-RORC and link increasing with DDL ID
     // @TODO replace with link assignment on production FLPs,
     // eventually storing in CCDB
-    auto [crorc, link] = getLinkAssignment(iddl);
+    auto [crorc, link] = mGeom->getLinkAssignment(iddl);
+    if(link < 0) continue;
     std::string rawfilename = mOutputLocation;
     switch (mFileFor) {
       case FileFor_t::kFullDet:
@@ -81,9 +86,9 @@ void AliEmcalRawConverter::initRawWriter()
         break;
       };
       case FileFor_t::kLink:
-        rawfilename += fmt::format("/emcal_{:d}_{:d}.raw", crorc, link);
+        rawfilename += fmt::format("/emcal_{:d}.raw", iddl);
     }
-    mOutputWriter.registerLink(iddl, crorc, link, 0, rawfilename.data());
+    mOutputWriter.registerLink(iddl, crorc, link, getEndpoint(iddl), rawfilename.data());
   }
   mOutputWriter.setCarryOverCallBack(this);
   mOutputWriter.setApplyCarryOverToLastPage(true);
@@ -125,11 +130,12 @@ void AliEmcalRawConverter::convert()
     while (nextDDL(inputStream)) {
       std::cout << "Converting data for Equipment " << mCurrentEquipment << " (" << MIN_DDL_EMCAL << "," << MAX_DDL_EMCAL << ")\n";
       int iddl = mCurrentEquipment - MIN_DDL_EMCAL;
-      auto [crorc, link] = getLinkAssignment(iddl);
+      auto [crorc, link] = mGeom->getLinkAssignment(iddl);
       gsl::span<const uint32_t> payloadwords(reinterpret_cast<const uint32_t*>(mCurrentDataBuffer.data()), mCurrentDataBuffer.size() / sizeof(uint32_t));
       auto rcutrailer = RCUTrailer::constructFromPayloadWords(payloadwords);
       std::cout << rcutrailer << std::endl;
-      std::cout << "Adding data for ddl " << iddl << ", c-rorc " << crorc << ", link " << link << " with size " <<  mCurrentDataBuffer.size() << std::endl;
+      auto endpoint = getEndpoint(iddl);
+      std::cout << "Adding data for ddl " << iddl << ", c-rorc " << crorc << ", link " << link << ", FLP " << endpoint << " with size " <<  mCurrentDataBuffer.size() << std::endl;
       o2::InteractionRecord currentIR;
       if(currenttime >= 0) {
         // Set Run3 fake timestamps
@@ -138,18 +144,16 @@ void AliEmcalRawConverter::convert()
       } else {
         currentIR = mCurrentIR;
       }
-      mOutputWriter.addData(iddl, crorc, link, 0, currentIR, mCurrentDataBuffer, false, trigger);
+      mOutputWriter.addData(iddl, crorc, link, endpoint, currentIR, mCurrentDataBuffer, false, trigger);
       std::cout << "Adding data done" << std::endl;
     }
   }
 }
 
-std::tuple<int, int> AliEmcalRawConverter::getLinkAssignment(int ddlID)
-{
-  // Temporary link assignment (till final link assignment is known -
-  // eventually taken from CCDB)
-  // - Link (0-5) and C-RORC ID linear with ddlID
-  return std::make_tuple(ddlID / 6, ddlID % 6);
+int AliEmcalRawConverter::getEndpoint(int ddlID) {
+  // FLP ID is endpoint;
+  if(ddlID < 24) return 146;
+  return 147;
 }
 
 int AliEmcalRawConverter::carryOverMethod(const header::RDHAny* rdh, const gsl::span<char> data,
