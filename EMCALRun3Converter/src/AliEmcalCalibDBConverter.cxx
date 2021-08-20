@@ -67,7 +67,8 @@ void AliEmcalCalibDBConverter::convertBadCells(int runnumber, long timestamp)
   std::cout << "Bad channel map ready, storing under EMC/BadChannelMap with timestamp " << timestamp << std::endl;
 
   std::map<std::string, std::string> metadata;
-  mCcdbApi->storeAsTFileAny<o2::emcal::BadChannelMap>(&bcmrun3, "EMC/BadChannelMap", metadata, timestamp);
+  std::string ccdbpath = "EMC/Calib/" + mBadChannelPath;
+  mCcdbApi->storeAsTFileAny<o2::emcal::BadChannelMap>(&bcmrun3, ccdbpath, metadata, timestamp);
 }
 
 void AliEmcalCalibDBConverter::convertTimeCalib(int runnumber, long timestamp)
@@ -101,5 +102,6 @@ void AliEmcalCalibDBConverter::convertTimeCalib(int runnumber, long timestamp)
   std::cout << "Time calib ready, storing under EMC/TimeCalibParams with timestamp " << timestamp << std::endl;
 
   std::map<std::string, std::string> metadata;
-  mCcdbApi->storeAsTFileAny<o2::emcal::TimeCalibrationParams>(&timeCalibRun3, "EMC/TimeCalibrationParams", metadata, timestamp);
+  std::string ccdbpath = "EMC/Calib/" + mTimePath;
+  mCcdbApi->storeAsTFileAny<o2::emcal::TimeCalibrationParams>(&timeCalibRun3, ccdbpath, metadata, timestamp);
 }

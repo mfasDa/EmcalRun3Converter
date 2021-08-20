@@ -30,6 +30,9 @@ class AliEmcalCalibDBConverter
     convertTimeCalib(runnumber, timestamp);
   }
 
+  void setPathBadChannels(const char *path) { mBadChannelPath = path; }
+  void setPathTime(const char *path) { mTimePath = path; }
+
   void convertBadCells(int runnumber, long timestamp);
   void convertTimeCalib(int runnumber, long timestamp);
 
@@ -46,6 +49,8 @@ class AliEmcalCalibDBConverter
  private:
   double mTimeOffset = 0.;
   std::unique_ptr<o2::ccdb::CcdbApi> mCcdbApi;
+  std::string mBadChannelPath = "BadChannels";
+  std::string mTimePath = "Time";
 };
 
 } // namespace emcal
