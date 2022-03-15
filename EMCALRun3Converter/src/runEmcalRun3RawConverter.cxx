@@ -17,13 +17,15 @@ int main(int argc, const char** argv)
 {
   std::string inputfile, outputdir, segmentation;
   long starttime = -1;
+  int triggerclassindex = -1;
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
             ("help", "produce help message")
             ("in", boost::program_options::value<std::string>(&inputfile)->default_value("raw.root"), "inputfile to be processed")
             ("out", boost::program_options::value<std::string>(&outputdir)->default_value(""), "output directory for converted raw files")
             ("segmentation", boost::program_options::value<std::string>(&segmentation)->default_value("emcal"), "output file segmentation (emcal, subdet, link)")
-            ("starttime", boost::program_options::value<long>(&starttime)->default_value(-1), "fake run3 timestamp");
+            ("starttime", boost::program_options::value<long>(&starttime)->default_value(-1), "fake run3 timestamp")
+            ("triggerclass", boost::program_options::value<int>(&triggerclassindex)->default_value(-1), "Trigger class index from OCDB");
   boost::program_options::variables_map optionmap;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), optionmap);
   boost::program_options::notify(optionmap);
@@ -43,6 +45,9 @@ int main(int argc, const char** argv)
   }
   if (optionmap.count("starttime")) {
     starttime = optionmap["starttime"].as<long>();
+  }
+  if (optionmap.count("triggerclass")) {
+    triggerclassindex = optionmap["triggerclass"].as<int>();
   }
 
   if (!inputfile.length()) {
@@ -83,6 +88,10 @@ int main(int argc, const char** argv)
     rawconverter.setStartTimeRun(starttime);
   } else {
     std::cout << "Using BC and orbit from run2 interaction record" << std::endl;
+  }
+  if(triggerclassindex >= 0) {
+    std::cout << "Requesting trigger class index " << triggerclassindex << std::endl;
+    rawconverter.setTriggerClassIndex(triggerclassindex);
   }
   rawconverter.setFileFor(filefor);
   rawconverter.convert();

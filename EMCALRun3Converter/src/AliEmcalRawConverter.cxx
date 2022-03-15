@@ -7,6 +7,7 @@
 // In applying this license CERN does not waive the privileges and immunities
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction
+#include <bitset>
 #include <iostream>
 #include <vector>
 #include <fmt/core.h>
@@ -32,6 +33,7 @@ AliEmcalRawConverter::AliEmcalRawConverter(const std::string_view filerawin, con
                                                                                                                  mCurrentDataBuffer(),
                                                                                                                  mCurrentHeader(nullptr),
                                                                                                                  mCurrentEquipment(-1),
+                                                                                                                 mSelectTriggerClassIndex(-1),
                                                                                                                  mStartTimeRun(-1),
                                                                                                                  mRawWriterInitialized(false),
                                                                                                                  mOutputWriter(o2::header::gDataOriginEMC, false),
@@ -124,6 +126,8 @@ void AliEmcalRawConverter::convert()
       std::cerr << "Unknown trigger type " << type << ", skipping ..." << std::endl;
       continue;
     }
+  
+    if(!selectTrigger(inputStream.GetClassMask(), inputStream.GetClassMaskNext50())) continue;
     std::cout << "Reading next event" << std::endl;
     inputStream.Reset();
     bool initTrigger(true);
@@ -148,6 +152,16 @@ void AliEmcalRawConverter::convert()
       std::cout << "Adding data done" << std::endl;
     }
   }
+}
+
+bool AliEmcalRawConverter::selectTrigger(uint64_t triggerClassesFirst, uint64_t triggerClassesNext50) const {
+  if(mSelectTriggerClassIndex < 0) return true; // no selection required
+  std::bitset<100> triggerbits;
+  for(int ibit = 0; ibit < 50; ibit++) {
+    triggerbits.set(ibit, TESTBIT(triggerClassesFirst, ibit));
+    triggerbits.set(ibit+50, TESTBIT(triggerClassesNext50, ibit));
+  }
+  return triggerbits.test(mSelectTriggerClassIndex);
 }
 
 int AliEmcalRawConverter::getEndpoint(int ddlID) {

@@ -39,6 +39,7 @@ class AliEmcalRawConverter
   AliEmcalRawConverter(const std::string_view filerawin, const std::string_view outputloc);
   ~AliEmcalRawConverter() = default;
 
+  void setTriggerClassIndex(int triggerclassindex) { mSelectTriggerClassIndex = triggerclassindex; }
   void setStartTimeRun(long timestamp) { mStartTimeRun = timestamp; }
   void setInputFile(const char* name) { mInputFile = name; }
   void setOuputLocation(const char* outputloc) { mOutputLocation = outputloc; }
@@ -52,6 +53,7 @@ class AliEmcalRawConverter
  protected:
   void initRawWriter();
   int getEndpoint(int ddlID);
+  bool selectTrigger(uint64_t triggerClassesFirst, uint64_t triggerClassesNext50) const;
 
  private:
   bool nextDDL(AliRawReaderRoot& reader);
@@ -61,6 +63,7 @@ class AliEmcalRawConverter
   gsl::span<char> mCurrentDataBuffer;
   const AliRawDataHeaderV3* mCurrentHeader;
   Int_t mCurrentEquipment;
+  Int_t mSelectTriggerClassIndex;
   Long_t mStartTimeRun;
   bool mRawWriterInitialized;
   InteractionRecord mCurrentIR;
