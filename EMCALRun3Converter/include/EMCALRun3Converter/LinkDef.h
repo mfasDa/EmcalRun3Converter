@@ -15,7 +15,7 @@
 
 #pragma link C++ namespace o2+;
 #pragma link C++ namespace o2::emcal+;
-#pragma link C++ class o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits+;
+//#pragma link C++ class o2::emcal::AliAnalysisTaskEmcalRun3ConverterDigits+;
 #pragma link C++ class o2::emcal::AliAnalysisTaskEmcalRun3ConverterCells+;
 #pragma link C++ class o2::emcal::AliEmcalRawConverter+;
 

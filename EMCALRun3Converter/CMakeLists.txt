@@ -10,7 +10,8 @@
 
 add_library(EMCALRun3Converter)
 
-target_sources(EMCALRun3Converter PRIVATE src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
+target_sources(EMCALRun3Converter PRIVATE 
+                                          #src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
                                           src/AliAnalysisTaskEmcalRun3ConverterCells.cxx
                                           src/AliEmcalRawConverter.cxx
                                           src/AliEmcalCalibDBConverter.cxx
@@ -22,11 +23,11 @@ target_include_directories(
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::EMCALSimulation O2::EMCALCalib O2::Headers O2::DetectorsRaw O2::CCDB O2::CommonConstants AliRoot::AliRoot Boost::serialization)
+target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::GPUCommon O2::CommonDataFormat O2::SimulationDataFormat O2::EMCALSimulation O2::EMCALCalib O2::Headers O2::DetectorsRaw O2::CCDB O2::CommonConstants AliRoot::AliRoot Boost::serialization)
 
 add_root_dictionary(EMCALRun3Converter
                     HEADERS 
-                            include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
+                           # include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
                             include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterCells.h
                             include/EMCALRun3Converter/AliEmcalRawConverter.h
                     LINKDEF 
@@ -41,11 +42,11 @@ install(TARGETS EMCALRun3Converter
 
 #set(ROOT_DEPENDENCIES Core EG Geom Gpad Graf Hist MathCore Matrix Physics RIO Tree VMC)
 
-add_executable(runEmcalRun3DigitsConverter src/runEmcalRun3DigitsConverter.cxx )
-target_link_libraries(runEmcalRun3DigitsConverter EMCALRun3Converter O2::EMCALBase AliRoot::AliRoot Boost::program_options)
-install(TARGETS runEmcalRun3DigitsConverter
-    RUNTIME DESTINATION bin
-)
+#add_executable(runEmcalRun3DigitsConverter src/runEmcalRun3DigitsConverter.cxx )
+#target_link_libraries(runEmcalRun3DigitsConverter EMCALRun3Converter O2::EMCALBase AliRoot::AliRoot Boost::program_options)
+#install(TARGETS runEmcalRun3DigitsConverter
+#    RUNTIME DESTINATION bin
+#)
 
 add_executable(runEmcalRun3CellsConverter src/runEmcalRun3CellsConverter.cxx )
 target_link_libraries(runEmcalRun3CellsConverter EMCALRun3Converter O2::EMCALBase AliRoot::AliRoot Boost::program_options)
