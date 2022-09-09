@@ -11,7 +11,7 @@
 add_library(EMCALRun3Converter)
 
 target_sources(EMCALRun3Converter PRIVATE 
-                                          #src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
+                                          src/AliAnalysisTaskEmcalRun3ConverterDigits.cxx
                                           src/AliAnalysisTaskEmcalRun3ConverterCells.cxx
                                           src/AliEmcalRawConverter.cxx
                                           src/AliEmcalCalibDBConverter.cxx
@@ -27,7 +27,7 @@ target_link_libraries(EMCALRun3Converter PUBLIC O2::DataFormatsEMCAL O2::GPUComm
 
 add_root_dictionary(EMCALRun3Converter
                     HEADERS 
-                           # include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
+                            include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterDigits.h
                             include/EMCALRun3Converter/AliAnalysisTaskEmcalRun3ConverterCells.h
                             include/EMCALRun3Converter/AliEmcalRawConverter.h
                     LINKDEF 
